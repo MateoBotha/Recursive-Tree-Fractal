@@ -64,17 +64,24 @@ public class FractalWindow extends JFrame {
                     g2d.rotate(Math.toRadians(subBranches[i].getAngle()));
                     g2d.fillRect((int) -(branchThickness / 2), (int) -(subBranches[i].getLength()), (int) branchThickness, (int) subBranches[i].getLength());
                     //g2d.setTransform(old);
-                    //g2d.translate(-(subBranchCoordinates.x+((double)branchThickness/2)),-(subBranchCoordinates.y+(branchLength/2)));
+                    //g2d.translate(-(subBranchCoordinates.x),-(subBranchCoordinates.y));
                 } else {
                     // the current subBranch has a subbranch as a parent, we must draw it on top of its parent.
+                    g2d.setTransform(old);
                     SubBranch currentSubBranchParent = subBranches[i].getSubParent();
                     System.out.println(g2d.getTransform().transform(new Point2D.Double((int) -(branchThickness / 2), (int) ((int) -(subBranches[i].getLength())-(currentSubBranchParent.getLength()))),new Point2D.Double()));
-                    Point subBranchCoordinates = new Point((branchCoordinates.x), (int) (branchCoordinates.y - (branchLength) / 2));
+                    Point subBranchCoordinates = new Point((int) ((0)-(Math.cos(Math.toRadians(currentSubBranchParent.getAngle()))* currentSubBranchParent.getLength())), (int) ((int) (-(branchLength/2))+(Math.sin(Math.toRadians(currentSubBranchParent.getAngle()))* currentSubBranchParent.getLength())));
                     //AffineTransform old = g2d.getTransform();
-                    //g2d.translate(subBranchCoordinates.x, subBranchCoordinates.y);
+                    g2d.setColor(Color.cyan);
+                    g2d.fillRect(subBranchCoordinates.x, subBranchCoordinates.y,10,10);
+                    g2d.translate(subBranchCoordinates.x, -currentSubBranchParent.getLength()-branchLength/2);
+                    System.out.println(subBranchCoordinates);
+                    g2d.setColor(Color.pink);
+                    g2d.fillRect(0, (int) -(branchLength/2),10,10);
+                    g2d.setColor(Color.black);
                     g2d.rotate(Math.toRadians(subBranches[i].getAngle()));
                     g2d.fillRect((int) -(branchThickness / 2), (int) ((int) -(subBranches[i].getLength())-(currentSubBranchParent.getLength())), (int) branchThickness, (int) subBranches[i].getLength());
-                    g2d.setTransform(old);
+
                 }
             }
             branchThickness-=branchThicknessDecreaseAmount;
