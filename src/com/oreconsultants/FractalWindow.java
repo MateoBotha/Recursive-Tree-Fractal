@@ -31,8 +31,8 @@ public class FractalWindow extends JFrame {
             draw(g);
         }
         public void draw(Graphics g) {
-            SubBranch subBranch = new SubBranch(180, 40, (Branch) null,null);
-            Branch branch = new Branch(new SubBranch[]{subBranch},20,new Point(46,57),n);
+            SubBranch subBranch = new SubBranch(n, 40, (Branch) null,null);
+            Branch branch = new Branch(new SubBranch[]{subBranch},20,new Point(Screen_Width/2,Screen_Height/2),0);
             subBranch.setBranchParent(branch);
             drawBranch(g,branch);
             n++;repaint();
@@ -53,11 +53,11 @@ public class FractalWindow extends JFrame {
             }
             for (int i = 0; i < subBranches.length; i++) {
                 branchThickness-=branchThicknessDecreaseAmount;
-                Point subBranchCoordinates = new Point((branchCoordinates.x), (int) (branchCoordinates.y-(branchLength)));
+                Point subBranchCoordinates = new Point((branchCoordinates.x), (int) (branchCoordinates.y-(branchLength)/2));
                 AffineTransform old = g2d.getTransform();
                 g2d.translate(subBranchCoordinates.x,subBranchCoordinates.y);
                 g2d.rotate(Math.toRadians(subBranches[i].getAngle()));
-                g2d.fillRect((int) -(branchThickness/2),0,(int)branchThickness,(int)subBranches[i].getLength());
+                g2d.fillRect((int) -(branchThickness/2),(int)-(subBranches[i].getLength()),(int)branchThickness,(int)subBranches[i].getLength());
                 g2d.setTransform(old);
                 //g2d.translate(-(subBranchCoordinates.x+((double)branchThickness/2)),-(subBranchCoordinates.y+(branchLength/2)));
             }
