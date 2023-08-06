@@ -74,13 +74,13 @@ public class FractalWindow extends JFrame {
                     //AffineTransform old = g2d.getTransform();
                     g2d.setColor(Color.cyan);
                     g2d.fillRect(subBranchCoordinates.x, subBranchCoordinates.y,10,10);
-                    g2d.translate(subBranchCoordinates.x, -currentSubBranchParent.getLength()-branchLength/2);
+                    g2d.translate(subBranchCoordinates.x, subBranchCoordinates.y);
                     System.out.println(subBranchCoordinates);
                     g2d.setColor(Color.pink);
                     g2d.fillRect(0, (int) -(branchLength/2),10,10);
                     g2d.setColor(Color.black);
                     g2d.rotate(Math.toRadians(subBranches[i].getAngle()));
-                    g2d.fillRect((int) -(branchThickness / 2), (int) ((int) -(subBranches[i].getLength())-(currentSubBranchParent.getLength())), (int) branchThickness, (int) subBranches[i].getLength());
+                    g2d.fillRect((int) -(branchThickness / 2), (int) -(subBranches[i].getLength()), (int) branchThickness, (int) subBranches[i].getLength());
 
                 }
             }
