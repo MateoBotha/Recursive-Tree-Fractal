@@ -5,8 +5,8 @@ import java.awt.*;
 public class Branch {
     private final SubBranch[] subBranches;
     private double length;
-    private final Point coordinates; // branches need locations while SubBranches don't
-    private final double angle;
+    private Point coordinates; // branches need locations while SubBranches don't
+    private double angle;
     public Branch(SubBranch[] subBranches, double length, Point coordinates, double angle) {
         this.subBranches = subBranches;
         this.length = length;
@@ -21,6 +21,12 @@ public class Branch {
     }
     public void setLength(double length) {
         this.length = length;
+    }
+    public void setCoordinates(Point coordinates) {
+        this.coordinates = coordinates;
+    }
+    public void setAngle(double angle) {
+        this.angle = angle;
     }
     public void changeLengthOfAllSubBranches(double multiplier) {
         for (SubBranch subBranch : subBranches) {
