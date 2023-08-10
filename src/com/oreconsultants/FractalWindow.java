@@ -5,7 +5,22 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 
 public class FractalWindow extends JFrame {
-    FractalWindow() {
+    int depth;
+    double branchThicknessDecreaseAmount;
+    double multiplier;
+    Branch branchInput;
+    int Screen_Width;
+    int Screen_Height;
+    double branchThickness;
+    FractalWindow(int depth, double branchThicknessDecreaseAmount, double initialBranchThickness, double multiplier, Branch branch, int Screen_Width, int Screen_Height) {
+        this.depth = depth;
+        this.branchThicknessDecreaseAmount = branchThicknessDecreaseAmount;
+        this.multiplier = multiplier;
+        this.branchInput = branch;
+        this.branchThickness = initialBranchThickness;
+        this.Screen_Width = Screen_Width;
+        this.Screen_Height = Screen_Height;
+
         this.setTitle("Recursive Tree Fractal");
         this.add(new FractalPanel());
         this.pack();
@@ -14,12 +29,7 @@ public class FractalWindow extends JFrame {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setResizable(false);
     }
-    static class FractalPanel extends JPanel {
-        int Screen_Width = 500;
-        int Screen_Height = 500;
-        double branchThickness = 10;
-        double branchThicknessDecreaseAmount = 0.1;
-        double n = 0;
+    class FractalPanel extends JPanel {
         FractalPanel() {
             this.setPreferredSize(new Dimension(Screen_Width,Screen_Height));
             this.setLayout(null);
@@ -31,15 +41,47 @@ public class FractalWindow extends JFrame {
             draw(g);
         }
         public void draw(Graphics g) {
-            SubBranch subBranch = new SubBranch(-45, 40, (Branch) null,null);
+            SubBranch subBranch = new SubBranch(-15, 40, (Branch) null,null);
             //SubBranch subBranch2 = new SubBranch(45, 20, (Branch) null,null);
-            SubBranch subBranch3 = new SubBranch(45, 40, (Branch) null,null);
-            Branch branch = new Branch(new SubBranch[]{subBranch,subBranch3},20,new Point(Screen_Width/2,Screen_Height/2),0);
-            //subBranch2.setSubParent(subBranch);
-            drawBranch(g,branch,3,true);
-            //n+=0.1;repaint();
+            SubBranch subBranch3 = new SubBranch(15, 40, (Branch) null,null);
+            branchInput = new Branch(new SubBranch[]{subBranch,subBranch3},20,new Point(Screen_Width/2,Screen_Height/2),0);
+            AffineTransform[] endPoints = drawBranch(g, branchInput,depth);
+            drawTree(g, branchInput,endPoints,depth);
         }
-        public void drawBranch(Graphics g, Branch branch, int depth,boolean lastBranchInGeneration) {
+        public void drawTree(Graphics g, Branch branch, AffineTransform[] endPoints, int depth) {
+            if (endPoints!=null) {
+                AffineTransform[] newEndPoints = new AffineTransform[0];
+                Graphics2D g2d = (Graphics2D) g;
+                branch = modifiersMadeToBranch(branch);
+                for (int i = 0; i < endPoints.length; i++) {
+                    AffineTransform beforeTranslations = g2d.getTransform();
+                    g2d.setTransform(endPoints[i]);
+
+                    // adding the newPos to the end of the array
+                    AffineTransform[] newEndPointsTmp = drawBranch(g, branch, depth - 1);
+                    if (newEndPointsTmp != null) {
+                        // newEndPointsTmp may be null if e reached the end depth
+                        AffineTransform[] newEndPointsCpy = new AffineTransform[newEndPoints.length];
+                        System.arraycopy(newEndPoints, 0, newEndPointsCpy, 0, newEndPoints.length);
+                        newEndPoints = new AffineTransform[newEndPoints.length + newEndPointsTmp.length];
+                        System.arraycopy(newEndPointsCpy, 0, newEndPoints, 0, newEndPointsCpy.length);
+                        System.arraycopy(newEndPointsTmp, 0, newEndPoints, newEndPointsCpy.length, newEndPointsTmp.length);
+                    } else {
+                        newEndPoints = null;
+                    }
+                    g2d.setTransform(beforeTranslations);
+                }
+                drawTree(g, branch, newEndPoints, depth - 1);
+            }
+        }
+        public Branch modifiersMadeToBranch(Branch branch) {
+            branch.setCoordinates(new Point(0, 0));
+            branch.setAngle(0);
+            branch.changeLengthOfAllSubBranches(multiplier);
+            branchThickness -= branchThicknessDecreaseAmount;
+            return branch;
+        }
+        public AffineTransform[] drawBranch(Graphics g, Branch branch, int depth) {
             if (depth > 0) {
                 Graphics2D g2d = (Graphics2D) g;
                 Point branchCoordinates = branch.getCoordinates();
@@ -102,28 +144,10 @@ public class FractalWindow extends JFrame {
                         g2d.setTransform(branchTranslations); // undoing the translations made by this subBranch and (if it had a subBranch child) its child
                     }
                 }
-                Branch newBranch = new Branch(branch.getSubBranches(),branch.getLength(),branch.getCoordinates(),branch.getAngle());
-                if (lastBranchInGeneration) {
-                    newBranch.changeLengthOfAllSubBranches(0.5);
-                    branchThickness -= branchThicknessDecreaseAmount;
-                }
-                // recursively looping
-                for (AffineTransform endOfAllTopLevelSubBranch : endOfAllTopLevelSubBranches) {
-                    boolean getLastBranchInGeneration = (endOfAllTopLevelSubBranches[endOfAllTopLevelSubBranches.length-1]==endOfAllTopLevelSubBranch)&&lastBranchInGeneration;
-                    g2d.setTransform(endOfAllTopLevelSubBranch);
-                    newBranch.setLength(0);
-                    newBranch.setCoordinates(new Point(0,0));
-                    newBranch.setAngle(0);
-                    if (getLastBranchInGeneration) {
-                        g.setColor(Color.CYAN);
-                    } else {
-                        g.setColor(Color.black);
-                    }
-                    drawBranch(g, newBranch, depth - 1,getLastBranchInGeneration);
-                }
-
-                g2d.setTransform(noTransforms); // undoing all translations made in the process of drawing this branch
+                g2d.setTransform(noTransforms); // undoing all transformed made
+                return endOfAllTopLevelSubBranches;
             }
+            return null;
         }
     }
 }
