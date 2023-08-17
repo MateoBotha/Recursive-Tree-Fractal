@@ -13,6 +13,6 @@ public class Main {
         SubBranch subBranch3 = new SubBranch(15, 40, (Branch) null,null);
         Branch branch = new Branch(new SubBranch[]{subBranch,subBranch3},20,new Point(Screen_Width/2,Screen_Height/2),0);
         //subBranch2.setSubParent(subBranch);
-        new FractalWindow(8,0.5,10,0.5,branch, Screen_Width,Screen_Height);
+        new FractalWindow(8,1.1,10,0.5,branch, Screen_Width,Screen_Height);
     }
 }
